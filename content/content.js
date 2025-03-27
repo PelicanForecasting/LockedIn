@@ -113,6 +113,7 @@ let state = {
       // Feed posts authors
       '.feed-shared-actor__name',
       '.update-components-actor__name',
+      '.update-components-actor__title',
       // Profile cards
       '.artdeco-entity-lockup__title',
       // Comments
@@ -229,6 +230,14 @@ let state = {
       }
     }
     
+    // Try specific LinkedIn span structure (for the new format)
+    if (!name) {
+      const nameSpan = element.querySelector('.hoverable-link-text span[dir="ltr"] span');
+      if (nameSpan) {
+        name = nameSpan.textContent?.trim();
+      }
+    }
+    
     return name;
   }
   
@@ -262,7 +271,8 @@ let state = {
       '.update-components-actor',
       '.entity-result',
       '.artdeco-entity-lockup',
-      '.discover-entity-type-card'
+      '.discover-entity-type-card',
+      '.update-components-actor__meta-link'
     ];
     
     // Start from the element and search up the DOM tree
