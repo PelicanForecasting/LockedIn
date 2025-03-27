@@ -59,7 +59,7 @@ let state = {
     validationFeedback: document.getElementById('validationFeedback'),
     previewResult1: document.getElementById('previewResult1'),
     previewResult2: document.getElementById('previewResult2'),
-    testInput: document.getElementById('testInput'),
+    testInput: document.getElementById('testName'),
     testBtn: document.getElementById('testBtn'),
     testResult: document.getElementById('testResult'),
     postsToday: document.getElementById('postsToday'),
