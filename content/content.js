@@ -1,5 +1,148 @@
-import { shouldFilter, extractName } from '../lib/filter-engine.js';
-import { debounce, throttle, findClosestElement, log } from '../lib/utils.js';
+// Utility functions from utils.js
+function debounce(func, wait) {
+  let timeout;
+  return function(...args) {
+    const context = this;
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(context, args), wait);
+  };
+}
+
+function throttle(func, limit) {
+  let inThrottle;
+  return function(...args) {
+    const context = this;
+    if (!inThrottle) {
+      func.apply(context, args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
+    }
+  };
+}
+
+function findClosestElement(element, selectors) {
+  if (!element || !selectors || !Array.isArray(selectors)) {
+    return null;
+  }
+  
+  let current = element;
+  while (current && current !== document.body) {
+    for (const selector of selectors) {
+      if (current.matches(selector)) {
+        return current;
+      }
+    }
+    current = current.parentElement;
+  }
+  
+  return null;
+}
+
+function log(level, message, data = null) {
+  const prefix = '[LinkedIn Name Filter]';
+  
+  switch (level) {
+    case 'info':
+      console.info(`${prefix} ${message}`, data);
+      break;
+    case 'warn':
+      console.warn(`${prefix} ${message}`, data);
+      break;
+    case 'error':
+      console.error(`${prefix} ${message}`, data);
+      break;
+    default:
+      console.log(`${prefix} ${message}`, data);
+  }
+}
+
+// Filter functions from filter-engine.js
+function matchesFilter(name, filter) {
+  if (!name || typeof name !== 'string' || !filter) {
+    return false;
+  }
+
+  try {
+    if (filter.mode === 'substring') {
+      if (filter.caseSensitive) {
+        return name.includes(filter.pattern);
+      } else {
+        return name.toLowerCase().includes(filter.pattern.toLowerCase());
+      }
+    } else if (filter.mode === 'regex') {
+      const regex = new RegExp(filter.pattern, filter.caseSensitive ? '' : 'i');
+      return regex.test(name);
+    }
+    return false;
+  } catch (error) {
+    console.error('Error in filter matching:', error);
+    return false;
+  }
+}
+
+function shouldFilter(name, filters) {
+  if (!name || !filters || !Array.isArray(filters) || filters.length === 0) {
+    return false;
+  }
+
+  for (const filter of filters) {
+    if (matchesFilter(name, filter)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function extractName(element) {
+  if (!element || !(element instanceof Element)) {
+    return null;
+  }
+
+  const strategies = [
+    // Direct text content
+    () => element.textContent?.trim(),
+    
+    // LinkedIn-specific attributes
+    () => element.getAttribute('aria-label'),
+    () => element.getAttribute('title'),
+    () => element.getAttribute('alt'),
+    
+    // LinkedIn-specific child elements
+    () => element.querySelector('[data-test-id="actor-name"]')?.textContent?.trim(),
+    () => element.querySelector('.feed-shared-actor__name')?.textContent?.trim(),
+    () => element.querySelector('.update-components-actor__name')?.textContent?.trim(),
+    
+    // Try parent element if this is just a wrapper
+    () => element.parentElement?.getAttribute('aria-label'),
+    
+    // Try finding a name pattern in text (first and last name format)
+    () => {
+      const text = element.textContent?.trim();
+      if (text) {
+        const nameParts = text.split(/\s+/);
+        if (nameParts.length >= 2) {
+          // Check if this looks like a name (first word is capitalized)
+          const firstWord = nameParts[0];
+          if (firstWord && firstWord[0] === firstWord[0].toUpperCase()) {
+            return text;
+          }
+        }
+      }
+      return null;
+    }
+  ];
+  
+  // Try each strategy until one returns a valid name
+  for (const strategy of strategies) {
+    const result = strategy();
+    if (result) {
+      return result;
+    }
+  }
+  
+  return null;
+}
+
 // State management
 let state = {
     masterEnabled: true,
@@ -208,37 +351,6 @@ let state = {
     // No match found
     state.nameCache.set(name, false);
     return false;
-  }
-  
-  // Extract name from an element
-  function extractName(element) {
-    // First try the element's text content
-    let name = element.textContent?.trim();
-    
-    // If no name found directly, try various LinkedIn-specific attributes
-    if (!name) {
-      name = element.getAttribute('aria-label') || 
-             element.getAttribute('title') || 
-             element.getAttribute('alt');
-    }
-    
-    // If still no name, try looking at child elements
-    if (!name) {
-      const nameSpan = element.querySelector('[data-test-id="actor-name"]');
-      if (nameSpan) {
-        name = nameSpan.textContent?.trim();
-      }
-    }
-    
-    // Try specific LinkedIn span structure (for the new format)
-    if (!name) {
-      const nameSpan = element.querySelector('.hoverable-link-text span[dir="ltr"] span');
-      if (nameSpan) {
-        name = nameSpan.textContent?.trim();
-      }
-    }
-    
-    return name;
   }
   
   // Hide an element that matches our filters

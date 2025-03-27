@@ -1,5 +1,41 @@
-import { validateFilter } from '../lib/filter-engine.js'
-import { generateId, formatDate, deepClone } from '../lib/utils.js';
+// Utility functions from utils.js
+function generateId() {
+  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+}
+
+function formatDate(timestamp) {
+  if (!timestamp) return '';
+  
+  const date = new Date(timestamp);
+  return date.toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
+}
+
+function deepClone(obj) {
+  return JSON.parse(JSON.stringify(obj));
+}
+
+// Filter validation from filter-engine.js
+function validateFilter(pattern, mode) {
+  if (!pattern || pattern.trim() === '') {
+    return { valid: false, error: 'Pattern cannot be empty' };
+  }
+
+  if (mode === 'regex') {
+    try {
+      new RegExp(pattern);
+      return { valid: true };
+    } catch (error) {
+      return { valid: false, error: `Invalid regex: ${error.message}` };
+    }
+  }
+
+  return { valid: true };
+}
+
 // State management
 let state = {
     masterEnabled: true,
