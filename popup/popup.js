@@ -62,8 +62,8 @@ let state = {
     testInput: document.getElementById('testInput'),
     testBtn: document.getElementById('testBtn'),
     testResult: document.getElementById('testResult'),
-    statsToday: document.getElementById('statsToday'),
-    statsTotal: document.getElementById('statsTotal'),
+    postsToday: document.getElementById('postsToday'),
+    postsTotal: document.getElementById('postsTotal'),
     resetStatsBtn: document.getElementById('resetStatsBtn'),
     exportBtn: document.getElementById('exportBtn'),
     importBtn: document.getElementById('importBtn'),
@@ -113,8 +113,8 @@ let state = {
     renderFilterList();
     
     // Update statistics
-    elements.statsToday.textContent = state.statistics.today;
-    elements.statsTotal.textContent = state.statistics.total;
+    elements.postsToday.textContent = state.statistics.today;
+    elements.postsTotal.textContent = state.statistics.total;
     
     // Update live preview
     updateLivePreview();
@@ -407,8 +407,8 @@ let state = {
     saveState();
     
     // Update UI
-    elements.statsToday.textContent = '0';
-    elements.statsTotal.textContent = '0';
+    elements.postsToday.textContent = '0';
+    elements.postsTotal.textContent = '0';
     
     // Notify content script
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
