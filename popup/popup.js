@@ -1,6 +1,5 @@
-
-import { validateFilter } from '/workspaces/LockedIn/lib/filter-engine'
-import { generateId, formatDate, deepClone } from '/workspaces/LockedIn/lib/utils';
+import { validateFilter } from '../lib/filter-engine.js'
+import { generateId, formatDate, deepClone } from '../lib/utils.js';
 // State management
 let state = {
     masterEnabled: true,
@@ -24,12 +23,11 @@ let state = {
     validationFeedback: document.getElementById('validationFeedback'),
     previewResult1: document.getElementById('previewResult1'),
     previewResult2: document.getElementById('previewResult2'),
-    testName: document.getElementById('testName'),
+    testInput: document.getElementById('testInput'),
     testBtn: document.getElementById('testBtn'),
-    resultText: document.getElementById('resultText'),
-    matchedBy: document.getElementById('matchedBy'),
-    postsToday: document.getElementById('postsToday'),
-    postsTotal: document.getElementById('postsTotal'),
+    testResult: document.getElementById('testResult'),
+    statsToday: document.getElementById('statsToday'),
+    statsTotal: document.getElementById('statsTotal'),
     resetStatsBtn: document.getElementById('resetStatsBtn'),
     exportBtn: document.getElementById('exportBtn'),
     importBtn: document.getElementById('importBtn'),
@@ -79,8 +77,8 @@ let state = {
     renderFilterList();
     
     // Update statistics
-    elements.postsToday.textContent = state.statistics.today;
-    elements.postsTotal.textContent = state.statistics.total;
+    elements.statsToday.textContent = state.statistics.today;
+    elements.statsTotal.textContent = state.statistics.total;
     
     // Update live preview
     updateLivePreview();
@@ -160,7 +158,7 @@ let state = {
     elements.addFilterBtn.addEventListener('click', addFilter);
     
     // Test button
-    elements.testBtn.addEventListener('click', testFilter);
+    elements.testBtn.addEventListener('click', testName);
     
     // Reset stats button
     elements.resetStatsBtn.addEventListener('click', resetStatistics);
@@ -193,37 +191,39 @@ let state = {
         }
       });
     });
+    
+    // Make sure filter pattern input has real-time validation
+    elements.filterPattern.addEventListener('input', validateFilterInput);
+    
+    // Make sure matching mode and case sensitivity update live preview
+    elements.matchingMode.addEventListener('change', updateLivePreview);
+    elements.caseSensitive.addEventListener('change', updateLivePreview);
   }
   
-  // Validate filter input
+  // Validate filter input in real-time
   function validateFilterInput() {
     const pattern = elements.filterPattern.value.trim();
     const mode = elements.matchingMode.value;
     
-    if (pattern === '') {
+    if (!pattern) {
       elements.validationFeedback.textContent = '';
-      elements.validationFeedback.className = 'validation-feedback';
-      return false;
+      elements.validationFeedback.classList.remove('validation-error');
+      elements.addFilterBtn.disabled = true;
+      return;
     }
     
-    if (mode === 'regex') {
-      try {
-        new RegExp(pattern);
-        elements.validationFeedback.textContent = '✓ Valid regex pattern';
-        elements.validationFeedback.className = 'validation-feedback valid-input';
-        updateLivePreview();
-        return true;
-      } catch (error) {
-        elements.validationFeedback.textContent = '✗ Invalid regex pattern';
-        elements.validationFeedback.className = 'validation-feedback invalid-input';
-        return false;
-      }
+    const validation = validateFilter(pattern, mode);
+    elements.validationFeedback.textContent = validation.message || '';
+    
+    if (validation.valid) {
+      elements.validationFeedback.classList.remove('validation-error');
+      elements.addFilterBtn.disabled = false;
     } else {
-      elements.validationFeedback.textContent = '✓ Valid pattern';
-      elements.validationFeedback.className = 'validation-feedback valid-input';
-      updateLivePreview();
-      return true;
+      elements.validationFeedback.classList.add('validation-error');
+      elements.addFilterBtn.disabled = true;
     }
+    
+    updateLivePreview();
   }
   
   // Update live preview
@@ -274,29 +274,41 @@ let state = {
   // Add a new filter
   function addFilter() {
     const pattern = elements.filterPattern.value.trim();
-    if (pattern === '') return;
+    const mode = elements.matchingMode.value;
+    const caseSensitive = elements.caseSensitive.checked;
     
-    if (!validateFilterInput()) return;
+    // Validate the filter
+    const validation = validateFilter(pattern, mode);
+    if (!validation.valid) {
+      // Show validation error
+      elements.validationFeedback.textContent = validation.message;
+      elements.validationFeedback.classList.add('validation-error');
+      return;
+    }
     
-    const filter = {
-      id: Date.now().toString(),
+    // Create new filter
+    const newFilter = {
+      id: generateId(),
       pattern,
-      mode: elements.matchingMode.value,
-      caseSensitive: elements.caseSensitive.checked
+      mode,
+      caseSensitive,
+      createdAt: Date.now()
     };
     
-    state.filters.push(filter);
+    // Add to state
+    state.filters.push(newFilter);
+    
+    // Save state
     saveState();
     
-    // Clear input
+    // Update UI
     elements.filterPattern.value = '';
     elements.validationFeedback.textContent = '';
-    elements.validationFeedback.className = 'validation-feedback';
-    
-    // Update UI
+    elements.validationFeedback.classList.remove('validation-error');
     renderFilterList();
+    updateLivePreview();
     
-    // Notify content script about the new filter
+    // Notify content script
     notifyContentScript();
   }
   
@@ -313,47 +325,41 @@ let state = {
   }
   
   // Test a filter against a name
-  function testFilter() {
-    const name = elements.testName.value.trim();
-    if (name === '') {
-      elements.resultText.textContent = 'Enter a name to test';
-      elements.matchedBy.textContent = 'None';
+  function testName() {
+    const nameToTest = elements.testInput.value.trim();
+    const result = elements.testResult;
+    
+    if (!nameToTest) {
+      result.textContent = 'Enter a name to test';
+      result.className = 'test-neutral';
       return;
     }
     
-    let matched = false;
-    let matchingFilter = null;
-    
-    for (const filter of state.filters) {
+    // Check if name matches any filter
+    const matchedFilter = state.filters.find(filter => {
       if (filter.mode === 'substring') {
         if (filter.caseSensitive) {
-          matched = name.includes(filter.pattern);
+          return nameToTest.includes(filter.pattern);
         } else {
-          matched = name.toLowerCase().includes(filter.pattern.toLowerCase());
+          return nameToTest.toLowerCase().includes(filter.pattern.toLowerCase());
         }
       } else if (filter.mode === 'regex') {
         try {
           const regex = new RegExp(filter.pattern, filter.caseSensitive ? '' : 'i');
-          matched = regex.test(name);
-        } catch (error) {
-          matched = false;
+          return regex.test(nameToTest);
+        } catch (e) {
+          return false;
         }
       }
-      
-      if (matched) {
-        matchingFilter = filter;
-        break;
-      }
-    }
+      return false;
+    });
     
-    if (matched && matchingFilter) {
-      elements.resultText.textContent = 'This name would be filtered';
-      elements.resultText.style.color = '#e74c3c';
-      elements.matchedBy.textContent = `"${matchingFilter.pattern}" (${matchingFilter.mode})`;
+    if (matchedFilter) {
+      result.textContent = `Matched by: ${matchedFilter.pattern}`;
+      result.className = 'test-match';
     } else {
-      elements.resultText.textContent = 'This name would not be filtered';
-      elements.resultText.style.color = '#27ae60';
-      elements.matchedBy.textContent = 'None';
+      result.textContent = 'No match';
+      result.className = 'test-no-match';
     }
   }
   
@@ -365,8 +371,8 @@ let state = {
     saveState();
     
     // Update UI
-    elements.postsToday.textContent = '0';
-    elements.postsTotal.textContent = '0';
+    elements.statsToday.textContent = '0';
+    elements.statsTotal.textContent = '0';
     
     // Notify content script
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {

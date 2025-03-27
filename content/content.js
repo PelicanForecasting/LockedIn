@@ -1,5 +1,5 @@
-import { shouldFilter, extractName } from '/workspaces/LockedIn/lib/filter-engine';
-import { debounce, throttle, findClosestElement, log } from '/workspaces/LockedIn/lib/utils';
+import { shouldFilter, extractName } from '../lib/filter-engine.js';
+import { debounce, throttle, findClosestElement, log } from '../lib/utils.js';
 // State management
 let state = {
     masterEnabled: true,

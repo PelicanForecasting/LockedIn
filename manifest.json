@@ -1,32 +1,33 @@
 {
-    "name": "LinkedIn Name Filter",
-    "version": "1.0.0",
-    "description": "Customize your LinkedIn feed by filtering content based on user names",
-    "manifest_version": 3,
-    "permissions": [
-      "storage",
-      "activeTab"
-    ],
-    "host_permissions": [
-      "*://*.linkedin.com/*"
-    ],
-    "action": {
-      "default_popup": "popup/popup.html",
-      "default_icon": {
-        "16": "icons/icon16.png",
-        "48": "icons/icon48.png",
-        "128": "icons/icon128.png"
-      }
-    },
-    "background": {
-      "service_worker": "background/background.js"
-    },
-    "content_scripts": [
-      {
-        "matches": ["*://*.linkedin.com/*"],
-        "js": ["content/content.js"],
-        "css": ["content/content.css"]
-      }
-    ],
-    "options_page": "options/options.html"
-  }
+  "name": "LinkedIn Name Filter",
+  "version": "1.0.0",
+  "description": "Customize your LinkedIn feed by filtering content based on user names",
+  "manifest_version": 3,
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "*://*.linkedin.com/*"
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background/background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.linkedin.com/*"],
+      "js": ["content/content.js"],
+      "css": ["content/content.css"]
+    }
+  ],
+  "options_page": "options/options.html"
+}
