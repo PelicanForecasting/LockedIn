@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LinkedIn Name Filter</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>LinkedIn Name Filter</h1>
+      <div class="master-toggle">
+        <span>Master Filter:</span>
+        <label class="switch">
+          <input type="checkbox" id="masterToggle" checked>
+          <span class="slider round"></span>
+        </label>
+      </div>
+    </header>
+
+    <section class="filter-management">
+      <h2>Filter Management</h2>
+      <div class="add-filter">
+        <div class="input-group">
+          <label for="filterPattern">Add New Filter:</label>
+          <input type="text" id="filterPattern" placeholder="Enter name pattern">
+          <div class="validation-feedback" id="validationFeedback"></div>
+        </div>
+        
+        <div class="filter-options">
+          <div class="select-group">
+            <label for="matchingMode">Matching Mode:</label>
+            <select id="matchingMode">
+              <option value="substring">Substring</option>
+              <option value="regex">Regex</option>
+            </select>
+          </div>
+          
+          <div class="checkbox-group">
+            <input type="checkbox" id="caseSensitive">
+            <label for="caseSensitive">Case sensitive</label>
+          </div>
+        </div>
+        
+        <button id="addFilterBtn" class="primary-btn">Add Filter</button>
+      </div>
+
+      <div class="filter-preview">
+        <h3>Live Preview:</h3>
+        <div class="preview-examples">
+          <div class="preview-item">
+            <span class="preview-name">John Smith</span>
+            <span class="preview-result" id="previewResult1">No match</span>
+          </div>
+          <div class="preview-item">
+            <span class="preview-name">Kumar Patel</span>
+            <span class="preview-result" id="previewResult2">No match</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="filter-list">
+        <h3>Current Filters:</h3>
+        <ul id="filtersList">
+          <!-- Filters will be added here dynamically -->
+        </ul>
+      </div>
+    </section>
+
+    <section class="filter-testing">
+      <h2>Filter Testing</h2>
+      <div class="test-filter">
+        <div class="input-group">
+          <label for="testName">Test a name:</label>
+          <input type="text" id="testName" placeholder="Enter name to test">
+        </div>
+        <button id="testBtn" class="secondary-btn">Test</button>
+        <div class="test-result" id="testResult">
+          <p>Result: <span id="resultText">Enter a name to test</span></p>
+          <p>Matched by: <span id="matchedBy">None</span></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="statistics">
+      <h2>Statistics</h2>
+      <div class="stats-container">
+        <div class="stat-item">
+          <span class="stat-label">Posts filtered today:</span>
+          <span class="stat-value" id="postsToday">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Total posts filtered:</span>
+          <span class="stat-value" id="postsTotal">0</span>
+        </div>
+        <button id="resetStatsBtn" class="secondary-btn">Reset Stats</button>
+      </div>
+    </section>
+
+    <section class="advanced-options">
+      <h2>Advanced Options</h2>
+      <div class="options-container">
+        <div class="option-buttons">
+          <button id="exportBtn" class="secondary-btn">Export Filters</button>
+          <button id="importBtn" class="secondary-btn">Import Filters</button>
+          <input type="file" id="importFile" accept=".json" style="display:none;">
+        </div>
+        <button id="clearAllBtn" class="danger-btn">Clear All Filters</button>
+        <div class="checkbox-group">
+          <input type="checkbox" id="temporaryBypass">
+          <label for="temporaryBypass">Temporary bypass (current session)</label>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

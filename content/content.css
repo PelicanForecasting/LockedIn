@@ -1,0 +1,4 @@
+/* Hide filtered content */
+.lnf-filtered-content {
+    display: none !important;
+  }

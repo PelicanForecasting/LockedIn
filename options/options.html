@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LinkedIn Name Filter - Options</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>LinkedIn Name Filter - Advanced Options</h1>
+    </header>
+
+    <section class="data-management">
+      <h2>Data Management</h2>
+      <div class="option-card">
+        <h3>Stored Data</h3>
+        <p>View and manage all data stored by this extension:</p>
+        <button id="viewDataBtn" class="primary-btn">View Stored Data</button>
+        <div id="dataViewer" class="data-viewer">
+          <pre id="dataContent"></pre>
+        </div>
+        <button id="clearDataBtn" class="danger-btn">Clear All Data</button>
+      </div>
+    </section>
+
+    <section class="performance">
+      <h2>Performance Settings</h2>
+      <div class="option-card">
+        <h3>Processing Settings</h3>
+        <div class="setting-group">
+          <label for="batchSize">Batch size:</label>
+          <input type="range" id="batchSize" min="10" max="50" step="5">
+          <span id="batchSizeValue">20</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="about">
+      <h2>About</h2>
+      <div class="option-card">
+        <h3>LinkedIn Name Filter</h3>
+        <p>Version 1.0.0</p>
+        <p>Filter your LinkedIn feed based on user names.</p>
+        <p>All data is stored locally on your device.</p>
+      </div>
+    </section>
+  </div>
+  <script src="options.js"></script>
+</body>
+</html>

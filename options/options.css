@@ -1,0 +1,125 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  body {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    color: #333;
+    background-color: #f5f5f5;
+    padding: 20px;
+  }
+  
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+  }
+  
+  header {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  h1 {
+    font-size: 24px;
+    color: #0077b5; /* LinkedIn blue */
+  }
+  
+  h2 {
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: #0077b5;
+  }
+  
+  h3 {
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+  
+  section {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .option-card {
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+  
+  .setting-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  label {
+    margin-right: 10px;
+    font-weight: bold;
+  }
+  
+  input[type="range"] {
+    flex-grow: 1;
+    margin-right: 10px;
+  }
+  
+  button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+    margin-right: 10px;
+  }
+  
+  .primary-btn {
+    background-color: #0077b5;
+    color: white;
+  }
+  
+  .primary-btn:hover {
+    background-color: #005582;
+  }
+  
+  .danger-btn {
+    background-color: #e74c3c;
+    color: white;
+  }
+  
+  .danger-btn:hover {
+    background-color: #c0392b;
+  }
+  
+  .data-viewer {
+    margin-top: 15px;
+    margin-bottom: 15px;
+    max-height: 300px;
+    overflow: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    background-color: #f5f5f5;
+    display: none;
+  }
+  
+  pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: monospace;
+    font-size: 12px;
+  }
+  
+  p {
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
